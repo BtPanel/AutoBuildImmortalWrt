@@ -7,7 +7,7 @@ echo "Starting 99-custom.sh at $(date)" >>$LOGFILE
 # 因为本项目中 单网口模式是dhcp模式 直接就能上网并且访问web界面 避免新手每次都要修改/etc/config/network中的静态ip
 # 当你刷机运行后 都调整好了 你完全可以在web页面自行关闭 wan口防火墙的入站数据
 # 具体操作方法：网络——防火墙 在wan的入站数据 下拉选项里选择 拒绝 保存并应用即可。
-uci set firewall.@zone[1].input='ACCEPT'
+uci set firewall.@zone[1].input='REJECT'
 
 # 设置主机名映射，解决安卓原生 TV 无法联网的问题
 uci add dhcp domain
@@ -185,7 +185,7 @@ uci commit
 
 # 设置编译作者信息
 FILE_PATH="/etc/openwrt_release"
-NEW_DESCRIPTION="Packaged by wukongdaily"
+NEW_DESCRIPTION="Packaged by ImmortalWrt"
 sed -i "s/DISTRIB_DESCRIPTION='[^']*'/DISTRIB_DESCRIPTION='$NEW_DESCRIPTION'/" "$FILE_PATH"
 
 # 若luci-app-advancedplus (进阶设置)已安装 则去除zsh的调用 防止命令行报 /usb/bin/zsh: not found的提示
@@ -194,5 +194,20 @@ if opkg list-installed | grep -q '^luci-app-advancedplus '; then
     sed -i '/\/bin\/zsh/d' /etc/init.d/advancedplus
     sed -i '/\/usr\/bin\/zsh/d' /etc/init.d/advancedplus
 fi
+
+# 插件菜单设置
+sed -i 's/admin\/status/admin\/vpn/g' /usr/share/luci/menu.d/luci-proto-wireguard.json
+sed -i 's/admin\/netwizard/admin\/network\/netwizard/g' /usr/share/luci/menu.d/luci-app-netwizard.json
+sed -i 's/"order": [0-9]*/"order": 1/g' /usr/share/luci/menu.d/luci-app-netwizard.json
+sed -i 's/admin\/network/admin\/control/g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
+
+# 插件兼容性修复
+# 修复 pcdata，striptags（移除 HTML 标签函数）
+find /usr/lib/lua/luci -type f -name "*.lua" | xargs sed -i 's/luci.util.pcdata/luci.xml.pcdata/g'
+find /usr/lib/lua/luci -type f -name "*.lua" | xargs sed -i 's/luci.util.striptags/luci.xml.striptags/g'
+# 清除 LuCI 缓存
+rm -rf /tmp/luci-modulecache/ /tmp/luci-indexcache 
+echo "All compatibility fixes applied." >>$LOGFILE
+/etc/init.d/rpcd restart
 
 exit 0
