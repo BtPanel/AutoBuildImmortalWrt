@@ -69,6 +69,8 @@ CUSTOM_PACKAGES="$CUSTOM_PACKAGES bandix-plus luci-app-bandix-plus luci-i18n-ban
 #CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-rtp2httpd luci-i18n-rtp2httpd-zh-cn"
 # 静态文件服务器dufs
 #CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-dufs-zh-cn"
+# 装Docker后，去除旧版 iptables 提示
+CUSTOM_PACKAGES="$CUSTOM_PACKAGES iptables-nft ip6tables-nft"
 
 #===========================以下imm仓库内的软件==============================↓
 #CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-3cat-zh-cn"
