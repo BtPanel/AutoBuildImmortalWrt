@@ -31,7 +31,7 @@ CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-ssr-plus"
 
 # VPN
 # Easytier
-CUSTOM_PACKAGES="$CUSTOM_PACKAGES easytier luci-app-easytier"
+CUSTOM_PACKAGES="$CUSTOM_PACKAGES easytier luci-app-easytier luci-i18n-easytier-zh-cn"
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-tailscale luci-i18n-tailscale-zh-cn"
 
 # WireGuard
