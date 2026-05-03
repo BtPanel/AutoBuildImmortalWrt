@@ -181,10 +181,9 @@ if opkg list-installed | grep -q '^luci-app-advancedplus '; then
 fi
 
 # 插件菜单设置
-sed -i 's/admin\/status/admin\/vpn/g' /usr/share/luci/menu.d/luci-proto-wireguard.json
 sed -i 's/admin\/netwizard/admin\/network\/netwizard/g' /usr/share/luci/menu.d/luci-app-netwizard.json
 sed -i 's/"order": [0-9]*/"order": 1/g' /usr/share/luci/menu.d/luci-app-netwizard.json
-sed -i 's/admin\/network/admin\/control/g' /usr/share/luci/menu.d/luci-app-bandix.json
+sed -i 's/admin\/network/admin\/control/g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
 
 # 插件兼容性修复
 # 修复 pcdata，striptags（移除 HTML 标签函数）
