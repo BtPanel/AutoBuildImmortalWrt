@@ -34,28 +34,7 @@ count=$(echo "$ifnames" | wc -w)
 echo "Detected physical interfaces: $ifnames" >>$LOGFILE
 echo "Interface count: $count" >>$LOGFILE
 
-# 2. 根据板子型号映射WAN和LAN接口
-board_name=$(cat /tmp/sysinfo/board_name 2>/dev/null || echo "unknown")
-echo "Board detected: $board_name" >>$LOGFILE
-
-wan_ifname=""
-lan_ifnames=""
-# 此处特殊处理个别开发板网口顺序问题
-case "$board_name" in
-    "radxa,e20c"|"friendlyarm,nanopi-r5c")
-        wan_ifname="eth1"
-        lan_ifnames="eth0"
-        echo "Using $board_name mapping: WAN=$wan_ifname LAN=$lan_ifnames" >>"$LOGFILE"
-        ;;
-    *)
-        # 默认第一个接口为WAN，其余为LAN
-        wan_ifname=$(echo "$ifnames" | awk '{print $1}')
-        lan_ifnames=$(echo "$ifnames" | cut -d ' ' -f2-)
-        echo "Using default mapping: WAN=$wan_ifname LAN=$lan_ifnames" >>"$LOGFILE"
-        ;;
-esac
-
-# 3. 配置网络
+# 2. 配置网络
 if [ "$count" -eq 1 ]; then
     # 单网口设备，DHCP模式
     uci set network.lan.proto='dhcp'
@@ -65,35 +44,44 @@ if [ "$count" -eq 1 ]; then
     uci delete network.lan.dns
     uci commit network
 elif [ "$count" -gt 1 ]; then
-    # 多网口设备配置
+    echo "Configuring multi-port device ($count ports)..." >>$LOGFILE
+    
+    # 物理网口分配，第一个口做 LAN (eth0)
+    LAN_MAIN=$(echo "$ifnames" | awk '{print $1}')
+    # 第二个口做 WAN (eth1)
+    WAN_IF=$(echo "$ifnames" | awk '{print $2}')
+    # 剩下的所有口 (从第3个到第N个) 全部归为 LAN 扩展口
+    LAN_OTHERS=$(echo "$ifnames" | cut -d' ' -f3-)
+    
     # 配置WAN
+    uci delete network.wan
     uci set network.wan=interface
-    uci set network.wan.device="$wan_ifname"
     uci set network.wan.proto='dhcp'
-
+    uci set network.wan.device="$WAN_IF"
     # 配置WAN6
+    uci delete network.wan6
     uci set network.wan6=interface
-    uci set network.wan6.device="$wan_ifname"
     uci set network.wan6.proto='dhcpv6'
+    uci set network.wan6.device="$WAN_IF"
+    
+    # 配置 LAN 网桥
+    uci delete network.br_lan
+    uci set network.br_lan=device
+    uci set network.br_lan.name='br-lan'
+    uci set network.br_lan.type='bridge'
+    
+    # 把 LAN 主口和所有扩展口加入网桥列表
+    for p_if in $LAN_MAIN $LAN_OTHERS; do
+        uci add_list network.br_lan.ports="$p_if"
+        echo "Adding $p_if to LAN bridge" >>$LOGFILE
+    done
 
-    # 查找 br-lan 设备 section
-    section=$(uci show network | awk -F '[.=]' '/\.@?device\[\d+\]\.name=.br-lan.$/ {print $2; exit}')
-    if [ -z "$section" ]; then
-        echo "error：cannot find device 'br-lan'." >>$LOGFILE
-    else
-        # 删除原有ports
-        uci -q delete "network.$section.ports"
-        # 添加LAN接口端口
-        for port in $lan_ifnames; do
-            uci add_list "network.$section.ports"="$port"
-        done
-        echo "Updated br-lan ports: $lan_ifnames" >>$LOGFILE
-    fi
-
-    # LAN口设置静态IP
+    # LAN口设置静态IP,多网口设备 支持修改为别的管理后台地址 在Github Action 的UI上自行输入即可 
     uci set network.lan.proto='static'
-    # 多网口设备 支持修改为别的管理后台地址 在Github Action 的UI上自行输入即可 
+    uci set network.lan.device='br-lan'  # 绑定到上面定义的网桥
+    uci delete network.lan.gateway
     uci set network.lan.netmask='255.255.255.0'
+
     # 设置路由器管理后台地址
     IP_VALUE_FILE="/etc/config/custom_router_ip.txt"
     if [ -f "$IP_VALUE_FILE" ]; then
