@@ -12,7 +12,6 @@ CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-ddnsto-zh-cn"
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-gowebdav-zh-cn"
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-linkease-zh-cn"
 
-
 # 高级卸载 by YT Vedio Talk
 #CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-uninstall"
 # 极光主题 by github eamonxg
