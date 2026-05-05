@@ -183,7 +183,7 @@ fi
 # 插件菜单设置
 sed -i 's#admin/netwizard#admin/network/netwizard#g' /usr/share/luci/menu.d/luci-app-netwizard.json
 sed -i 's#"order": [0-9]*#"order": 1#g' /usr/share/luci/menu.d/luci-app-netwizard.json
-sed -i 's#admin/network/bandix-plus#admin/control/bandix-plus#g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
+#sed -i 's#admin/network/bandix-plus#admin/control/bandix-plus#g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
 sed -i 's#admin/control/taskplan#admin/system/taskplan#g' /usr/share/luci/menu.d/luci-app-taskplan.json
 
 # 插件兼容性修复
