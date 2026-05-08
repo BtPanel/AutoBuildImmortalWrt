@@ -186,6 +186,9 @@ sed -i 's#admin/network/bandix_plus#admin/control/bandixplus#g' /usr/share/luci/
 #sed -i 's#admin/control/taskplan#admin/system/taskplan#g' /usr/share/luci/menu.d/luci-app-taskplan.json
 sed -i 's#admin/services/frpc#admin/vpn/frpc#g' /usr/share/luci/menu.d/luci-app-frpc.json
 
+# 应用过滤移动到管控菜单下
+sed -i 's/{"admin", "services", "appfilter"}/{"admin", "control", "appfilter"}/g' /usr/lib/lua/luci/controller/appfilter.lua
+sed -i 's/"admin", "services", "appfilter"/"admin", "control", "appfilter"/g' /usr/lib/lua/luci/controller/appfilter.lua
 
 # 插件兼容性修复
 # 修复 pcdata，striptags（移除 HTML 标签函数）
