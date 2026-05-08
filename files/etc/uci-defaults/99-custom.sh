@@ -182,7 +182,7 @@ fi
 
 # 插件菜单设置
 sed -i 's#admin/status#admin/vpn#g' /usr/share/luci/menu.d/luci-proto-wireguard.json
-sed -i 's#admin/network/bandix-plus#admin/control/bandix-plus#g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
+sed -i 's#admin/network/bandix_plus#admin/control/bandixplus#g' /usr/share/luci/menu.d/luci-app-bandix-plus.json
 #sed -i 's#admin/control/taskplan#admin/system/taskplan#g' /usr/share/luci/menu.d/luci-app-taskplan.json
 sed -i 's#admin/services/frpc#admin/vpn/frpc#g' /usr/share/luci/menu.d/luci-app-frpc.json
 
